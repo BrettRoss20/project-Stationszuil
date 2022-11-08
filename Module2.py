@@ -31,6 +31,7 @@ def review():
         comment = f.readline()
         if comment == '':
             print('Er zijn op dit moment geen berichten meer om te beoordelen.')
+            conn.close()
             break
         f = open('berichten.csv', 'r+')
         bericht = f.readline()
@@ -41,18 +42,29 @@ def review():
         datumbericht = berichtgesplit[3]
         tijdbericht = berichtgesplit[4]
         print(bericht, naam, station, datumbericht, tijdbericht)
-        beoordeling = input('Goedkeuren of afkeuren: ')
-        review_tijd = time.strftime('%H:%M:%S')
-        review_datum = date.today()
-        with conn.cursor() as con:
-            con.execute("INSERT INTO review (beoordeling, bericht, naam, station, datumbericht, tijdbericht, beoordelingsdatum, beoordelingstijd, moderatoremail) "
-                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);", [beoordeling, bericht, naam, station, datumbericht, tijdbericht, review_datum, review_tijd, moderator_email])
-            conn.commit()
-        with open(r"berichten.csv", 'r+') as fp:
-            lines = fp.readlines()
-            fp.seek(0)
-            fp.truncate()
-            fp.writelines(lines[1:])
+        beoordeling = input('Vul in afgekeurd of goedgekeurd: ')
+        if beoordeling == 'afgekeurd':
+            s = open(r"berichten.csv", 'r+')
+            lines = s.readlines()
+            s.seek(0)
+            s.truncate()
+            s.writelines(lines[1:])
+            break
+        else:
+            review_tijd = time.strftime('%H:%M:%S')
+            review_datum = date.today()
+            with conn.cursor() as con:
+                con.execute(
+                    "INSERT INTO review (beoordeling, bericht, naam, station, datumbericht, tijdbericht, beoordelingsdatum, beoordelingstijd, moderatoremail) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);",
+                    [beoordeling, bericht, naam, station, datumbericht, tijdbericht, review_datum, review_tijd,
+                     moderator_email])
+                conn.commit()
+            with open(r"berichten.csv", 'r+') as fp:
+                lines = fp.readlines()
+                fp.seek(0)
+                fp.truncate()
+                fp.writelines(lines[1:])
     print('Dankjewel voor het beoordelen!')
 
 review()

@@ -37,4 +37,3 @@ volledigbericht = f'{bericht()}, {naam()}, {station()}, {datum}, {tijd}\n'
 
 f = open('berichten.csv', 'a+')
 f.write(volledigbericht)
-
