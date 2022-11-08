@@ -3,24 +3,34 @@ import psycopg2
 import time
 from datetime import date
 
-conn = psycopg2.connect(database='Stationszuil', user='postgres', password='Brett.ross15',
+conn = psycopg2.connect(database='DatabaseStationszuil', user='postgres', password='Brett.ross15',
                             host='localhost', port='5432')
 
-
 def review():
+    print('Welkom! Vul hier onder je email in.\n')
+    f = open('moderators.txt', 'r+')
+    read = f.readlines()
     moderator_email = input('Moderator, wat is je email: ')
-    moderator_naam = input('Moderator, wat is je naam: ')
-    with conn.cursor() as con:
-        con.execute("INSERT INTO moderator (email, naam) "
-                    "VALUES (%s, %s);", [moderator_email, moderator_naam])
-        conn.commit()
-    print('Dankjewel!')
+    if moderator_email in read:
+        print('Welkom terug! Je staat al in ons systeem, je kunt gelijk door met het beoordelen van berichten.\n')
+    else:
+        print('Je staat nog niet in onze database, wat leuk dat je mee wil doen. Vul nogmaals je email in.\n')
+        moderator_email = input('Moderator, wat is je email: ')
+        moderator_naam = input('Moderator, wat is je naam: ')
+        f = open('moderators.txt', 'w')
+        f.write(moderator_email)
+        with conn.cursor() as con:
+            con.execute("INSERT INTO moderator (email, naam) "
+                        "VALUES (%s, %s);", [moderator_email, moderator_naam])
+            conn.commit()
+            print('Dankjewel!')
+            print('Succes met het beoordelen van de berichten!\n')
 
     while True:
         f = open("berichten.csv", "r+")
         comment = f.readline()
         if comment == '':
-            print('Er zijn op dit moment geen berichten om te beoordelen.')
+            print('Er zijn op dit moment geen berichten meer om te beoordelen.')
             break
         f = open('berichten.csv', 'r+')
         bericht = f.readline()
@@ -35,8 +45,8 @@ def review():
         review_tijd = time.strftime('%H:%M:%S')
         review_datum = date.today()
         with conn.cursor() as con:
-            con.execute("INSERT INTO review (beoordeling, bericht, naam, station, datumbericht, tijdbericht, beoordelingsdatum, beoordelingstijd) "
-                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s);", [beoordeling, bericht, naam, station, datumbericht, tijdbericht, review_datum, review_tijd])
+            con.execute("INSERT INTO review (beoordeling, bericht, naam, station, datumbericht, tijdbericht, beoordelingsdatum, beoordelingstijd, moderatoremail) "
+                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);", [beoordeling, bericht, naam, station, datumbericht, tijdbericht, review_datum, review_tijd, moderator_email])
             conn.commit()
         with open(r"berichten.csv", 'r+') as fp:
             lines = fp.readlines()

@@ -10,7 +10,7 @@ def bericht():
     elif len(bericht) <= 0:
         print('U bent vergeten een bericht achter te laten.')
     else:
-        print('Dankje voor Uw bericht.')
+        print('Dankje voor Uw bericht.\n')
     return bericht
 
 def naam():
