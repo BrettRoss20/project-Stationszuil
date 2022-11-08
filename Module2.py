@@ -8,17 +8,21 @@ conn = psycopg2.connect(database='DatabaseStationszuil', user='postgres', passwo
 
 def review():
     print('Welkom! Vul hier onder je email in.\n')
+
     f = open('moderators.txt', 'r+')
     read = f.readlines()
     moderator_email = input('Moderator, wat is je email: ')
+
     if moderator_email in read:
         print('Welkom terug! Je staat al in ons systeem, je kunt gelijk door met het beoordelen van berichten.\n')
     else:
         print('Je staat nog niet in onze database, wat leuk dat je mee wil doen. Vul nogmaals je email in.\n')
         moderator_email = input('Moderator, wat is je email: ')
         moderator_naam = input('Moderator, wat is je naam: ')
+
         f = open('moderators.txt', 'w')
         f.write(moderator_email)
+
         with conn.cursor() as con:
             con.execute("INSERT INTO moderator (email, naam) "
                         "VALUES (%s, %s);", [moderator_email, moderator_naam])
@@ -35,14 +39,17 @@ def review():
             break
         f = open('berichten.csv', 'r+')
         bericht = f.readline()
+
         berichtgesplit = bericht.split(",")
         bericht = berichtgesplit[0]
         naam = berichtgesplit[1]
         station = berichtgesplit[2]
         datumbericht = berichtgesplit[3]
         tijdbericht = berichtgesplit[4]
+
         print(bericht, naam, station, datumbericht, tijdbericht)
         beoordeling = input('Vul in afgekeurd of goedgekeurd: ')
+
         if beoordeling == 'afgekeurd':
             s = open(r"berichten.csv", 'r+')
             lines = s.readlines()
